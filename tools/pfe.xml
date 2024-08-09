@@ -1,10 +1,10 @@
-<?xml version="1.0" ?>
-<net name="pfe" version="10">
+<?xml version="1.0"?>
+<net name="main_graph" version="11">
 	<layers>
-		<layer id="0" name="pillar_x" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
+		<layer id="7" name="pillar_x" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
 			<output>
-				<port id="0" precision="FP16">
+				<port id="0" precision="FP32" names="pillar_x">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -12,10 +12,10 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="1" name="pillar_y" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
+		<layer id="6" name="pillar_y" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
 			<output>
-				<port id="0" precision="FP16">
+				<port id="0" precision="FP32" names="pillar_y">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -23,10 +23,10 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="2" name="pillar_z" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
+		<layer id="5" name="pillar_z" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
 			<output>
-				<port id="0" precision="FP16">
+				<port id="0" precision="FP32" names="pillar_z">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -34,10 +34,10 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="3" name="pillar_i" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
+		<layer id="4" name="pillar_i" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
 			<output>
-				<port id="0" precision="FP16">
+				<port id="0" precision="FP32" names="pillar_i">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -45,28 +45,64 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="4" name="Concat_9" type="Concat" version="opset1">
-			<data axis="1"/>
+		<layer id="3" name="num_points_per_pillar" type="Parameter" version="opset1">
+			<data shape="1,12000" element_type="f32" />
+			<output>
+				<port id="0" precision="FP32" names="num_points_per_pillar">
+					<dim>1</dim>
+					<dim>12000</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="2" name="x_sub_shaped" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
+			<output>
+				<port id="0" precision="FP32" names="x_sub_shaped">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="1" name="y_sub_shaped" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
+			<output>
+				<port id="0" precision="FP32" names="y_sub_shaped">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="0" name="mask" type="Parameter" version="opset1">
+			<data shape="1,1,12000,100" element_type="f32" />
+			<output>
+				<port id="0" precision="FP32" names="mask">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="8" name="/voxel_feature_extractor/Concat" type="Concat" version="opset1">
+			<data axis="1" />
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
 					<dim>100</dim>
 				</port>
-				<port id="1">
+				<port id="1" precision="FP32">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
 					<dim>100</dim>
 				</port>
-				<port id="2">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="3">
+				<port id="2" precision="FP32">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -74,38 +110,7 @@
 				</port>
 			</input>
 			<output>
-				<port id="4" precision="FP16">
-					<dim>1</dim>
-					<dim>4</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="5" name="Concat_0" type="Concat" version="opset1">
-			<data axis="1"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="2">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="3" precision="FP16">
+				<port id="3" precision="FP32" names="/voxel_feature_extractor/Concat_output_0">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
@@ -113,29 +118,29 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="6" name="ReduceSum_1/Cast_1765_const" type="Const" version="opset1">
-			<data offset="0" size="8" shape="1" element_type="i64"/>
+		<layer id="9" name="Constant_3" type="Const" version="opset1">
+			<data element_type="i64" shape="1" offset="0" size="8" />
 			<output>
+				<port id="0" precision="I64" names="onnx::ReduceSum_160">
+					<dim>1</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="10" name="/voxel_feature_extractor/ReduceSum" type="ReduceSum" version="opset1">
+			<data keep_dims="true" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>3</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
 				<port id="1" precision="I64">
 					<dim>1</dim>
 				</port>
-			</output>
-		</layer>
-		<layer id="7" name="ReduceSum_1" type="ReduceSum" version="opset1">
-			<data keep_dims="True"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>3</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/ReduceSum_output_0">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
@@ -143,36 +148,30 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="8" name="num_points_per_pillar" type="Parameter" version="opset1">
-			<data shape="1,12000" element_type="f16"/>
+		<layer id="11" name="/voxel_feature_extractor/Constant" type="Const" version="opset1">
+			<data element_type="i64" shape="4" offset="8" size="32" />
+			<rt_info>
+				<attribute name="precise" version="0" />
+			</rt_info>
 			<output>
-				<port id="0" precision="FP16">
-					<dim>1</dim>
-					<dim>12000</dim>
+				<port id="0" precision="I64" names="/voxel_feature_extractor/Constant_output_0">
+					<dim>4</dim>
 				</port>
 			</output>
 		</layer>
-		<layer id="9" name="Reshape_3/Cast_1763_const" type="Const" version="opset1">
-			<data offset="8" size="32" shape="4" element_type="i64"/>
-			<output>
+		<layer id="12" name="/voxel_feature_extractor/Reshape" type="Reshape" version="opset1">
+			<data special_zero="true" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>12000</dim>
+				</port>
 				<port id="1" precision="I64">
 					<dim>4</dim>
 				</port>
-			</output>
-		</layer>
-		<layer id="10" name="Reshape_3" type="Reshape" version="opset1">
-			<data special_zero="True"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>12000</dim>
-				</port>
-				<port id="1">
-					<dim>4</dim>
-				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Reshape_output_0">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -180,50 +179,16 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="11" name="Div_4/reciprocal__input_port_1/value328389/EltwiseUnsqueeze402_const" type="Const" version="opset1">
-			<data offset="40" size="2" shape="1,1,1,1" element_type="f16"/>
-			<output>
-				<port id="1" precision="FP16">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="12" name="Div_4/reciprocal_" type="Power" version="opset1">
+		<layer id="13" name="/voxel_feature_extractor/Div" type="Divide" version="opset1">
+			<data auto_broadcast="numpy" m_pythondiv="true" />
 			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>1</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-				</port>
-			</input>
-			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>1</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="13" name="Div_4" type="Multiply" version="opset1">
-			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
 					<dim>1</dim>
 				</port>
-				<port id="1">
+				<port id="1" precision="FP32">
 					<dim>1</dim>
 					<dim>1</dim>
 					<dim>12000</dim>
@@ -231,7 +196,7 @@
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Div_output_0">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
@@ -239,15 +204,16 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="14" name="Sub_5/sub" type="Subtract" version="opset1">
+		<layer id="14" name="/voxel_feature_extractor/Sub" type="Subtract" version="opset1">
+			<data auto_broadcast="numpy" />
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
 					<dim>100</dim>
 				</port>
-				<port id="1">
+				<port id="1" precision="FP32">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
@@ -255,7 +221,7 @@
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Sub_output_0">
 					<dim>1</dim>
 					<dim>3</dim>
 					<dim>12000</dim>
@@ -263,207 +229,220 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="15" name="x_sub_shaped" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
+		<layer id="15" name="/voxel_feature_extractor/Sub_1" type="Subtract" version="opset1">
+			<data auto_broadcast="numpy" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Sub_1_output_0">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="16" name="/voxel_feature_extractor/Sub_2" type="Subtract" version="opset1">
+			<data auto_broadcast="numpy" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Sub_2_output_0">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="17" name="/voxel_feature_extractor/Concat_1" type="Concat" version="opset1">
+			<data axis="1" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="2" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="3" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="4" precision="FP32">
+					<dim>1</dim>
+					<dim>3</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="5" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="6" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</input>
+			<output>
+				<port id="7" precision="FP32" names="/voxel_feature_extractor/Concat_1_output_0">
+					<dim>1</dim>
+					<dim>9</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="18" name="/voxel_feature_extractor/Mul" type="Multiply" version="opset1">
+			<data auto_broadcast="numpy" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>9</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>1</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/Mul_output_0">
+					<dim>1</dim>
+					<dim>9</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="19" name="onnx::Conv_175_compressed" type="Const" version="opset1">
+			<data element_type="f16" shape="64, 9, 1, 1" offset="40" size="1152" />
+			<output>
+				<port id="0" precision="FP16" names="onnx::Conv_175">
+					<dim>64</dim>
+					<dim>9</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="20" name="onnx::Conv_175" type="Convert" version="opset1">
+			<data destination_type="f32" />
+			<rt_info>
+				<attribute name="decompression" version="0" />
+			</rt_info>
+			<input>
+				<port id="0" precision="FP16">
+					<dim>64</dim>
+					<dim>9</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</input>
+			<output>
+				<port id="1" precision="FP32">
+					<dim>64</dim>
+					<dim>9</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="21" name="/voxel_feature_extractor/pfn_layers.0/conv1/Conv/WithoutBiases" type="Convolution" version="opset1">
+			<data strides="1, 1" dilations="1, 1" pads_begin="0, 0" pads_end="0, 0" auto_pad="explicit" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>9</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>64</dim>
+					<dim>9</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="22" name="Reshape_36_compressed" type="Const" version="opset1">
+			<data element_type="f16" shape="1, 64, 1, 1" offset="1192" size="128" />
 			<output>
 				<port id="0" precision="FP16">
 					<dim>1</dim>
+					<dim>64</dim>
 					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
+					<dim>1</dim>
 				</port>
 			</output>
 		</layer>
-		<layer id="16" name="Sub_6/sub" type="Subtract" version="opset1">
+		<layer id="23" name="Reshape_36" type="Convert" version="opset1">
+			<data destination_type="f32" />
+			<rt_info>
+				<attribute name="decompression" version="0" />
+			</rt_info>
 			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="17" name="y_sub_shaped" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
-			<output>
 				<port id="0" precision="FP16">
 					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="18" name="Sub_7/sub" type="Subtract" version="opset1">
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="19" name="Concat_8" type="Concat" version="opset1">
-			<data axis="1"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>2</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="20" name="Concat_10" type="Concat" version="opset1">
-			<data axis="1"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>4</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>3</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="2">
-					<dim>1</dim>
-					<dim>2</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="3" precision="FP16">
-					<dim>1</dim>
-					<dim>9</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="21" name="mask" type="Parameter" version="opset1">
-			<data shape="1,1,12000,100" element_type="f16"/>
-			<output>
-				<port id="0" precision="FP16">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="22" name="Mul_11" type="Multiply" version="opset1">
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>9</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>1</dim>
-					<dim>1</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</input>
-			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>9</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="23" name="BatchNormalization_13/mean/Fused_Mul_435437_const" type="Const" version="opset1">
-			<data offset="42" size="1152" shape="64,9,1,1" element_type="f16"/>
-			<output>
-				<port id="1" precision="FP16">
 					<dim>64</dim>
-					<dim>9</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="24" name="Conv_12/WithoutBiases" type="Convolution" version="opset1">
-			<data strides="1,1" dilations="1,1" pads_begin="0,0" pads_end="0,0" output_padding="0,0"/>
-			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>9</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
-					<dim>64</dim>
-					<dim>9</dim>
 					<dim>1</dim>
 					<dim>1</dim>
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
-					<dim>64</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="25" name="data_add_382394/EltwiseUnsqueeze422_const" type="Const" version="opset1">
-			<data offset="1194" size="128" shape="1,64,1,1" element_type="f16"/>
-			<output>
-				<port id="1" precision="FP16">
+				<port id="1" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>1</dim>
@@ -471,15 +450,16 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="26" name="Conv_12/Fused_Add_" type="Add" version="opset1">
+		<layer id="24" name="/voxel_feature_extractor/pfn_layers.0/conv1/Conv" type="Add" version="opset1">
+			<data auto_broadcast="numpy" />
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
 					<dim>100</dim>
 				</port>
-				<port id="1">
+				<port id="1" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>1</dim>
@@ -487,7 +467,7 @@
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="2" precision="FP32" names="/voxel_feature_extractor/pfn_layers.0/conv1/Conv_output_0">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
@@ -495,9 +475,9 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="27" name="Relu_14" type="ReLU" version="opset1">
+		<layer id="25" name="/voxel_feature_extractor/pfn_layers.0/Relu" type="ReLU" version="opset1">
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
@@ -505,7 +485,7 @@
 				</port>
 			</input>
 			<output>
-				<port id="1" precision="FP16">
+				<port id="1" precision="FP32" names="/voxel_feature_extractor/pfn_layers.0/Relu_output_0">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
@@ -513,10 +493,10 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="28" name="voxel_feature_extractor.pfn_layers.0.conv3.weight/Output_0/Data__const" type="Const" version="opset1">
-			<data offset="1322" size="278528" shape="64,64,1,34" element_type="f16"/>
+		<layer id="26" name="voxel_feature_extractor.pfn_layers.0.conv3.weight_compressed" type="Const" version="opset1">
+			<data element_type="f16" shape="64, 64, 1, 34" offset="1320" size="278528" />
 			<output>
-				<port id="1" precision="FP16">
+				<port id="0" precision="FP16" names="voxel_feature_extractor.pfn_layers.0.conv3.weight">
 					<dim>64</dim>
 					<dim>64</dim>
 					<dim>1</dim>
@@ -524,16 +504,13 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="29" name="Conv_15/WithoutBiases" type="Convolution" version="opset1">
-			<data strides="1,1" dilations="1,3" pads_begin="0,0" pads_end="0,0" output_padding="0,0"/>
+		<layer id="27" name="voxel_feature_extractor.pfn_layers.0.conv3.weight" type="Convert" version="opset1">
+			<data destination_type="f32" />
+			<rt_info>
+				<attribute name="decompression" version="0" />
+			</rt_info>
 			<input>
-				<port id="0">
-					<dim>1</dim>
-					<dim>64</dim>
-					<dim>12000</dim>
-					<dim>100</dim>
-				</port>
-				<port id="1">
+				<port id="0" precision="FP16">
 					<dim>64</dim>
 					<dim>64</dim>
 					<dim>1</dim>
@@ -541,34 +518,57 @@
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
-					<dim>1</dim>
+				<port id="1" precision="FP32">
 					<dim>64</dim>
-					<dim>12000</dim>
+					<dim>64</dim>
 					<dim>1</dim>
+					<dim>34</dim>
 				</port>
 			</output>
 		</layer>
-		<layer id="30" name="Conv_15/Dims221388/EltwiseUnsqueeze398_const" type="Const" version="opset1">
-			<data offset="279850" size="128" shape="1,64,1,1" element_type="f16"/>
-			<output>
-				<port id="1" precision="FP16">
-					<dim>1</dim>
-					<dim>64</dim>
-					<dim>1</dim>
-					<dim>1</dim>
-				</port>
-			</output>
-		</layer>
-		<layer id="31" name="174" type="Add" version="opset1">
+		<layer id="28" name="/voxel_feature_extractor/pfn_layers.0/conv3/Conv/WithoutBiases" type="Convolution" version="opset1">
+			<data strides="1, 1" dilations="1, 3" pads_begin="0, 0" pads_end="0, 0" auto_pad="explicit" />
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>12000</dim>
+					<dim>100</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>64</dim>
+					<dim>64</dim>
+					<dim>1</dim>
+					<dim>34</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
 					<dim>1</dim>
 				</port>
-				<port id="1">
+			</output>
+		</layer>
+		<layer id="29" name="Reshape_53_compressed" type="Const" version="opset1">
+			<data element_type="f16" shape="1, 64, 1, 1" offset="279848" size="128" />
+			<output>
+				<port id="0" precision="FP16">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="30" name="Reshape_53" type="Convert" version="opset1">
+			<data destination_type="f32" />
+			<rt_info>
+				<attribute name="decompression" version="0" />
+			</rt_info>
+			<input>
+				<port id="0" precision="FP16">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>1</dim>
@@ -576,7 +576,32 @@
 				</port>
 			</input>
 			<output>
-				<port id="2" precision="FP16">
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</output>
+		</layer>
+		<layer id="31" name="173" type="Add" version="opset1">
+			<data auto_broadcast="numpy" />
+			<input>
+				<port id="0" precision="FP32">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>12000</dim>
+					<dim>1</dim>
+				</port>
+				<port id="1" precision="FP32">
+					<dim>1</dim>
+					<dim>64</dim>
+					<dim>1</dim>
+					<dim>1</dim>
+				</port>
+			</input>
+			<output>
+				<port id="2" precision="FP32" names="173">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
@@ -584,9 +609,9 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="32" name="174/sink_port_0" type="Result" version="opset1">
+		<layer id="32" name="173/sink_port_0" type="Result" version="opset1">
 			<input>
-				<port id="0">
+				<port id="0" precision="FP32">
 					<dim>1</dim>
 					<dim>64</dim>
 					<dim>12000</dim>
@@ -596,85 +621,50 @@
 		</layer>
 	</layers>
 	<edges>
-		<edge from-layer="0" from-port="0" to-layer="4" to-port="0"/>
-		<edge from-layer="1" from-port="0" to-layer="4" to-port="1"/>
-		<edge from-layer="2" from-port="0" to-layer="4" to-port="2"/>
-		<edge from-layer="3" from-port="0" to-layer="4" to-port="3"/>
-		<edge from-layer="0" from-port="0" to-layer="5" to-port="0"/>
-		<edge from-layer="1" from-port="0" to-layer="5" to-port="1"/>
-		<edge from-layer="2" from-port="0" to-layer="5" to-port="2"/>
-		<edge from-layer="5" from-port="3" to-layer="7" to-port="0"/>
-		<edge from-layer="6" from-port="1" to-layer="7" to-port="1"/>
-		<edge from-layer="8" from-port="0" to-layer="10" to-port="0"/>
-		<edge from-layer="9" from-port="1" to-layer="10" to-port="1"/>
-		<edge from-layer="10" from-port="2" to-layer="12" to-port="0"/>
-		<edge from-layer="11" from-port="1" to-layer="12" to-port="1"/>
-		<edge from-layer="7" from-port="2" to-layer="13" to-port="0"/>
-		<edge from-layer="12" from-port="2" to-layer="13" to-port="1"/>
-		<edge from-layer="5" from-port="3" to-layer="14" to-port="0"/>
-		<edge from-layer="13" from-port="2" to-layer="14" to-port="1"/>
-		<edge from-layer="0" from-port="0" to-layer="16" to-port="0"/>
-		<edge from-layer="15" from-port="0" to-layer="16" to-port="1"/>
-		<edge from-layer="1" from-port="0" to-layer="18" to-port="0"/>
-		<edge from-layer="17" from-port="0" to-layer="18" to-port="1"/>
-		<edge from-layer="16" from-port="2" to-layer="19" to-port="0"/>
-		<edge from-layer="18" from-port="2" to-layer="19" to-port="1"/>
-		<edge from-layer="4" from-port="4" to-layer="20" to-port="0"/>
-		<edge from-layer="14" from-port="2" to-layer="20" to-port="1"/>
-		<edge from-layer="19" from-port="2" to-layer="20" to-port="2"/>
-		<edge from-layer="20" from-port="3" to-layer="22" to-port="0"/>
-		<edge from-layer="21" from-port="0" to-layer="22" to-port="1"/>
-		<edge from-layer="22" from-port="2" to-layer="24" to-port="0"/>
-		<edge from-layer="23" from-port="1" to-layer="24" to-port="1"/>
-		<edge from-layer="24" from-port="2" to-layer="26" to-port="0"/>
-		<edge from-layer="25" from-port="1" to-layer="26" to-port="1"/>
-		<edge from-layer="26" from-port="2" to-layer="27" to-port="0"/>
-		<edge from-layer="27" from-port="1" to-layer="29" to-port="0"/>
-		<edge from-layer="28" from-port="1" to-layer="29" to-port="1"/>
-		<edge from-layer="29" from-port="2" to-layer="31" to-port="0"/>
-		<edge from-layer="30" from-port="1" to-layer="31" to-port="1"/>
-		<edge from-layer="31" from-port="2" to-layer="32" to-port="0"/>
+		<edge from-layer="0" from-port="0" to-layer="18" to-port="1" />
+		<edge from-layer="1" from-port="0" to-layer="16" to-port="1" />
+		<edge from-layer="2" from-port="0" to-layer="15" to-port="1" />
+		<edge from-layer="3" from-port="0" to-layer="12" to-port="0" />
+		<edge from-layer="4" from-port="0" to-layer="17" to-port="3" />
+		<edge from-layer="5" from-port="0" to-layer="8" to-port="2" />
+		<edge from-layer="5" from-port="0" to-layer="17" to-port="2" />
+		<edge from-layer="6" from-port="0" to-layer="8" to-port="1" />
+		<edge from-layer="6" from-port="0" to-layer="17" to-port="1" />
+		<edge from-layer="6" from-port="0" to-layer="16" to-port="0" />
+		<edge from-layer="7" from-port="0" to-layer="15" to-port="0" />
+		<edge from-layer="7" from-port="0" to-layer="17" to-port="0" />
+		<edge from-layer="7" from-port="0" to-layer="8" to-port="0" />
+		<edge from-layer="8" from-port="3" to-layer="14" to-port="0" />
+		<edge from-layer="8" from-port="3" to-layer="10" to-port="0" />
+		<edge from-layer="9" from-port="0" to-layer="10" to-port="1" />
+		<edge from-layer="10" from-port="2" to-layer="13" to-port="0" />
+		<edge from-layer="11" from-port="0" to-layer="12" to-port="1" />
+		<edge from-layer="12" from-port="2" to-layer="13" to-port="1" />
+		<edge from-layer="13" from-port="2" to-layer="14" to-port="1" />
+		<edge from-layer="14" from-port="2" to-layer="17" to-port="4" />
+		<edge from-layer="15" from-port="2" to-layer="17" to-port="5" />
+		<edge from-layer="16" from-port="2" to-layer="17" to-port="6" />
+		<edge from-layer="17" from-port="7" to-layer="18" to-port="0" />
+		<edge from-layer="18" from-port="2" to-layer="21" to-port="0" />
+		<edge from-layer="19" from-port="0" to-layer="20" to-port="0" />
+		<edge from-layer="20" from-port="1" to-layer="21" to-port="1" />
+		<edge from-layer="21" from-port="2" to-layer="24" to-port="0" />
+		<edge from-layer="22" from-port="0" to-layer="23" to-port="0" />
+		<edge from-layer="23" from-port="1" to-layer="24" to-port="1" />
+		<edge from-layer="24" from-port="2" to-layer="25" to-port="0" />
+		<edge from-layer="25" from-port="1" to-layer="28" to-port="0" />
+		<edge from-layer="26" from-port="0" to-layer="27" to-port="0" />
+		<edge from-layer="27" from-port="1" to-layer="28" to-port="1" />
+		<edge from-layer="28" from-port="2" to-layer="31" to-port="0" />
+		<edge from-layer="29" from-port="0" to-layer="30" to-port="0" />
+		<edge from-layer="30" from-port="1" to-layer="31" to-port="1" />
+		<edge from-layer="31" from-port="2" to-layer="32" to-port="0" />
 	</edges>
-	<meta_data>
-		<MO_version value="2021.2.0-1877-176bdf51370-releases/2021/2"/>
-		<cli_parameters>
-			<caffe_parser_path value="DIR"/>
-			<data_type value="FP16"/>
-			<disable_nhwc_to_nchw value="False"/>
-			<disable_omitting_optional value="False"/>
-			<disable_resnet_optimization value="False"/>
-			<disable_weights_compression value="False"/>
-			<enable_concat_optimization value="False"/>
-			<enable_flattening_nested_params value="False"/>
-			<enable_ssd_gluoncv value="False"/>
-			<extensions value="DIR"/>
-			<framework value="onnx"/>
-			<freeze_placeholder_with_value value="{}"/>
-			<generate_deprecated_IR_V7 value="False"/>
-			<input value="pillar_x,pillar_y,pillar_z,pillar_i,num_points_per_pillar,x_sub_shaped,y_sub_shaped,mask"/>
-			<input_model value="DIR/pfe.onnx"/>
-			<input_model_is_text value="False"/>
-			<input_shape value="[1,1,12000,100],[1,1,12000,100],[1,1,12000,100],[1,1,12000,100],[1,12000],[1,1,12000,100],[1,1,12000,100],[1,1,12000,100]"/>
-			<k value="DIR/CustomLayersMapping.xml"/>
-			<keep_shape_ops value="True"/>
-			<legacy_mxnet_model value="False"/>
-			<log_level value="ERROR"/>
-			<mean_scale_values value="{}"/>
-			<mean_values value="()"/>
-			<model_name value="pfe"/>
-			<output_dir value="DIR"/>
-			<placeholder_data_types value="{}"/>
-			<placeholder_shapes value="{'pillar_x': array([    1,     1, 12000,   100]), 'pillar_y': array([    1,     1, 12000,   100]), 'pillar_z': array([    1,     1, 12000,   100]), 'pillar_i': array([    1,     1, 12000,   100]), 'num_points_per_pillar': array([    1, 12000]), 'x_sub_shaped': array([    1,     1, 12000,   100]), 'y_sub_shaped': array([    1,     1, 12000,   100]), 'mask': array([    1,     1, 12000,   100])}"/>
-			<progress value="False"/>
-			<remove_memory value="False"/>
-			<remove_output_softmax value="False"/>
-			<reverse_input_channels value="False"/>
-			<save_params_from_nd value="False"/>
-			<scale_values value="()"/>
-			<silent value="False"/>
-			<static_shape value="False"/>
-			<stream_output value="False"/>
-			<unset unset_cli_parameters="batch, counts, disable_fusing, disable_gfusing, finegrain_fusing, input_checkpoint, input_meta_graph, input_proto, input_symbol, mean_file, mean_file_offsets, move_to_preprocess, nd_prefix_name, output, pretrained_model_name, saved_model_dir, saved_model_tags, scale, tensorboard_logdir, tensorflow_custom_layer_libraries, tensorflow_custom_operations_config_update, tensorflow_object_detection_api_pipeline_config, tensorflow_use_custom_operations_config, transformations_config"/>
-		</cli_parameters>
-	</meta_data>
+	<rt_info>
+		<Runtime_version value="2024.3.0-16041-1e3b88e4e3f-releases/2024/3" />
+		<conversion_parameters>
+			<is_python_object value="False" />
+			<output_model value="pfe" />
+		</conversion_parameters>
+	</rt_info>
 </net>

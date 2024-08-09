@@ -198,20 +198,39 @@ class PillarVFE(VFETemplate):
 
     def forward(self, data_dict):
         raise NotImplementedError
-
+    
     def sync_call(self, batch_dict):
         inputs_param = self.preprocessing(batch_dict)
         exec_net = self.exec_net_pfe
-        # start_time = time.perf_counter()
+        res_torch = None  # 在循环前定义一个默认值
+        #print("Inference results keys:inputs ", inputs_param)  # 添加这行代码来打印结果中的所有键
 
         res = exec_net.infer_new_request(inputs=inputs_param)
+        #print("Inference results keys:", res.keys())  # 添加这行代码来打印结果中的所有键
 
         for k, v in res.items():
-            if list(k.names)[0] == "174":
+            #print(f"Key: {k}, Value shape: {v.shape}")
+            if list(k.names)[0] == "173":
                 res_torch = torch.as_tensor(v)
+                break  # 一旦找到我们需要的，退出循环
+
+        if res_torch is None:
+            raise ValueError("Expected key '173' not found in the inference results.")
+        
+        #print("res_torch:", res_torch)
         voxel_features = res_torch.squeeze()
+        #voxel_features = res_torch.squeeze(0)  # 去掉第一维
+        #voxel_features = res_torch.squeeze(0).squeeze(-1)  # 去掉第一维和最后一维
+        #print(voxel_features)  # 输出将是形状 [n]
+        #print(voxel_features.shape)  # 输出将是 torch.Size([n])
         voxel_features = voxel_features.permute(1, 0)
         batch_dict['pillar_features'] = voxel_features
+        #batch_dict['pillar_features'] = voxel_features.unsqueeze(0)  # 如果需要将其形状改为 [1, n]
+        #batch_dict['pillar_features'] = voxel_features  # 保持原形状，不需要 unsqueeze
+        #batch_dict['pillar_features'] = voxel_features.unsqueeze(0)  # 形状 [1, 64, 12000]
+
+        # 打印 batch_dict 的键值对
+        #print("batch_dict keys after sync_call:", batch_dict.keys())
         return batch_dict
 
     def async_call(self, batch_dict, inputs_param):
@@ -227,13 +246,20 @@ class PillarVFE(VFETemplate):
 
     def postprocessing(self):
         self.event.wait()
+        
+        # 从队列中获取 batch_dict
+        #batch_dict = self.queue.pop(0)
+        #print("postprocessing: batch_dict keys before returning:", batch_dict.keys())
+        # 检查是否有生成 batch_cls_preds
+        #if 'batch_cls_preds' not in batch_dict:
+        #    print("postprocessing: 'batch_cls_preds' not found in batch_dict.")
         return self.queue.pop(0)
 
     def callback(self, userdata):
         request, request_id, data_dict = userdata
         res = request.model_outputs
         for index, item in enumerate(res):
-            if list(item.names)[0] == "174":
+            if list(item.names)[0] == "173":
                 res_torch = torch.as_tensor(request.results[index])
 
         voxel_features = res_torch.squeeze()

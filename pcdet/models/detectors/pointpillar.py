@@ -13,28 +13,53 @@ class PointPillar(Detector3DTemplate):
 
     def balance(self, batch_dict):
         if batch_dict is None:              ## None means this is the last inference
+            #print("balance: batch_dict is None, performing postprocessing.")
             batch_dict_pre = self.rpn.postprocessing()
             batch_dict_pre = self.bbox(batch_dict_pre)
             pred_dicts = self.post_processing(batch_dict_pre)
             self.end_time.append(time.perf_counter())
             return pred_dicts
+        #print("balance: initial batch_dict keys:", batch_dict.keys())
         if (batch_dict['frameid'] == 0):
             self.end_time = []
             batch_dict = self.pfe.sync_call(batch_dict)
+            #print("balance: batch_dict keys after sync_call:", batch_dict.keys())
+
             batch_dict = self.scatter(batch_dict)
+            #print("balance: batch_dict keys after scatter:", batch_dict.keys())
+
             inputs = self.rpn.preprocessing(batch_dict)
+            #print("balance: inputs keys after rpn.preprocessing:", inputs.keys())
             self.rpn.async_call(batch_dict, inputs)
+            #print("balance: after rpn.async_call")
+
             return None
         inputs = self.pfe.preprocessing(batch_dict)
+        #print("balance: inputs keys after pfe.preprocessing:", inputs.keys())
+    
         self.pfe.async_call(batch_dict, inputs)
+        #print("balance: after pfe.async_call")
+
         batch_dict_pre = self.rpn.postprocessing()
+        #print("balance: batch_dict_pre keys after rpn.postprocessing:", batch_dict_pre.keys())
+
         batch_dict_pre = self.bbox(batch_dict_pre)
+        #print("balance: batch_dict_pre keys after bbox:", batch_dict_pre.keys())
+
         pred_dicts = self.post_processing(batch_dict_pre)
+        #print("balance: batch_dict keys after pfe.postprocessing:", batch_dict.keys())
+
         self.end_time.append(time.perf_counter())
         batch_dict = self.pfe.postprocessing()
         batch_dict = self.scatter(batch_dict)
+        #print("balance: batch_dict keys after second scatter:", batch_dict.keys())
+
         inputs = self.rpn.preprocessing(batch_dict)
+        #print("balance: inputs keys after second rpn.preprocessing:", inputs.keys())
+
         self.rpn.async_call(batch_dict, inputs)
+        #print("balance: after second rpn.async_call")
+
         return pred_dicts
 
     def throughput(self, batch_dict):

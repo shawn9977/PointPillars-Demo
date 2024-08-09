@@ -76,6 +76,10 @@ class AnchorHeadSingle(AnchorHeadTemplate):
         return data_dict
 
     def forward(self, data_dict):
+        # 打印data_dict的键值对，函数开始处
+        #print("data_dict keys at the start of forward:", data_dict.keys())
+        if 'batch_cls_preds' not in data_dict:
+            print("Warning: 'batch_cls_preds' is missing from data_dict.")
         cls_preds = data_dict['batch_cls_preds']
         box_preds = data_dict['batch_box_preds']
         dir_cls_preds = data_dict['dir_cls_preds']
@@ -129,5 +133,7 @@ class AnchorHeadSingle(AnchorHeadTemplate):
         data_dict['anchor_mask'] = anchors_mask
         #print('AnchorHeadSingle: %.2fms' %((time.perf_counter() - start_time)*1000))
 
+        # 打印data_dict的键值对，函数结束处
+        #print("data_dict keys at the end of forward:", data_dict.keys())
         return data_dict
 

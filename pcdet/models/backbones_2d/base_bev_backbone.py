@@ -135,13 +135,22 @@ class BaseBEVBackbone(nn.Module):
 
         for k, v in request.results.items():
             name = list(k.names)[0]
-
-            if name == "184":
+            #print(f"Key: {name}, Value: {v}")
+            #if name == "184":
+            if name == "251":
                 data_dict['batch_box_preds'] = torch.as_tensor(v)
-            elif name == "185":
+                #print("Added batch_box_preds:", data_dict['batch_box_preds'])
+            #elif name == "185":
+            elif name == "252":
                 data_dict['batch_cls_preds'] = torch.as_tensor(v)
-            elif name == "187":
+                #print("Added batch_cls_preds:", data_dict['batch_cls_preds'])
+            #elif name == "187":
+            elif name == "254":
                 data_dict['dir_cls_preds'] = torch.as_tensor(v)
+                #print("Added dir_cls_preds:", data_dict['dir_cls_preds'])
+
+        # 检查最终的 data_dict 是否包含所有必要的预测
+        #print("Final data_dict keys:", data_dict.keys())
 
         self.queue.append(data_dict)
         self.event.set()
