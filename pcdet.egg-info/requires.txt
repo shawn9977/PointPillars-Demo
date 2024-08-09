@@ -1,0 +1,6 @@
+easydict
+numba
+numpy
+pyyaml
+tensorboardX
+torch>=1.1
