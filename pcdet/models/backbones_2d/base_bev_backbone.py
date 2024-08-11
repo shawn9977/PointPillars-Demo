@@ -5,6 +5,8 @@ import threading
 from pathlib import Path
 from openvino.runtime import Core
 
+
+
 # BaseBEVBackbone_ASYNC=False
 BaseBEVBackbone_ASYNC = True
 
@@ -91,7 +93,7 @@ class BaseBEVBackbone(nn.Module):
         self.request = None
 
         # self.ie = openvino_ie
-        model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'rpn.xml')
+        model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'quantized_rpn.xml')
 
         core = Core()
         self.net_rpn = core.read_model(model=model_file_rpn)
@@ -163,17 +165,20 @@ class BaseBEVBackbone(nn.Module):
         input_blob = next(iter(self.exec_net_rpn.inputs))
         return {input_blob: data_dict['spatial_features']}
 
+
     def sync_call(self, data_dict):
         # start_time = time.perf_counter()
         inputs_param = self.preprocessing(data_dict)
+        #print("inputs_param:", inputs_param)
+
         res = self.exec_net_rpn.infer_new_request(inputs=inputs_param)
         for k, v in res.items():
             name = list(k.names)[0]
-            if name == "184":
+            if name == "251":
                 data_dict['batch_box_preds'] = torch.as_tensor(v)
-            elif name == "185":
+            elif name == "252":
                 data_dict['batch_cls_preds'] = torch.as_tensor(v)
-            elif name == "187":
+            elif name == "254":
                 data_dict['dir_cls_preds'] = torch.as_tensor(v)
         return data_dict
 

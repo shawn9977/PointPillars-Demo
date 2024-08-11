@@ -19,7 +19,7 @@ class Pfe:
         request, request_id, data_dict = userdata
         res = request.model_outputs
         for index, item in enumerate(res):
-            if list(item.names)[0] == "174":
+            if list(item.names)[0] == "173":
                 res_torch = torch.as_tensor(request.results[index])
 
         voxel_features = res_torch.squeeze()
@@ -49,7 +49,7 @@ class Pfe:
         inputs_param = self.preprocessing(batch_dict)
         res = self.pfe_model.infer_new_request(inputs=inputs_param)
         for k, v in res.items():
-            if list(k.names)[0] == "174":
+            if list(k.names)[0] == "173":
                 res_torch = torch.as_tensor(v)
         voxel_features = res_torch.squeeze()
         voxel_features = voxel_features.permute(1, 0)

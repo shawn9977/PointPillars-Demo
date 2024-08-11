@@ -160,6 +160,11 @@ def main():
         root_path=Path(args.data_path), ext=args.ext, logger=logger, ram=args.ram
     )
 
+    # 打印参数值
+    #print("model_cfg:", cfg.MODEL)
+    #print("num_class:", len(cfg.CLASS_NAMES))
+    #print("dataset:", demo_dataset)
+
     model = build_network(model_cfg=cfg.MODEL, num_class=len(cfg.CLASS_NAMES), dataset=demo_dataset)
 
     num = len(demo_dataset) if num == -1 else num

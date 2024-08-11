@@ -31,7 +31,7 @@ CONFIG = {
     "cfg_file": "pointpillar.yaml",
     "args": {
         "ram": False,
-        "data_num": 1000,
+        "data_num": 200,
         "ext": ".bin"
     }
 }

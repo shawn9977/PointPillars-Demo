@@ -209,6 +209,8 @@ MODEL = "pfe.xml"
 QUANT_MODEL = "quantized_pfe.xml"
 
 
+
+
 def main():
     logger = common_utils.create_logger()
     cfg = get_cfg(CFG_FILE)
@@ -222,7 +224,12 @@ def main():
         "logger": logger
     }
     datasets = DemoDataset(**args)
+    print("DemoDataset datasets:", datasets)
+    print("DemoDataset attributes:", vars(datasets))
+
     datasets = nncf.Dataset(datasets)
+    print("nncf.Dataset datasets:", datasets)
+    print("nncf.Dataset attributes:", vars(datasets))
 
     core = ov.Core()
     model = core.read_model(MODEL)

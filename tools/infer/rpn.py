@@ -23,11 +23,11 @@ class Rpn:
         request, request_id, data_dict = userdata
         for k, v in request.results.items():
             name = list(k.names)[0]
-            if name == "184":
+            if name == "251":
                 data_dict['batch_box_preds'] = torch.as_tensor(v)
-            elif name == "185":
+            elif name == "252":
                 data_dict['batch_cls_preds'] = torch.as_tensor(v)
-            elif name == "187":
+            elif name == "254":
                 data_dict['dir_cls_preds'] = torch.as_tensor(v)
         self.queue.append(data_dict)
         self.event.set()
@@ -52,10 +52,10 @@ class Rpn:
         res = self.rpn_model.infer_new_request(inputs=inputs_param)
         for k, v in res.items():
             name = list(k.names)[0]
-            if name == "184":
+            if name == "251":
                 data_dict['batch_box_preds'] = torch.as_tensor(v)
-            elif name == "185":
+            elif name == "252":
                 data_dict['batch_cls_preds'] = torch.as_tensor(v)
-            elif name == "187":
+            elif name == "254":
                 data_dict['dir_cls_preds'] = torch.as_tensor(v)
         return data_dict
