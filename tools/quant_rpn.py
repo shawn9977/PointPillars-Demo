@@ -146,7 +146,7 @@ def load_data_to_gpu(batch_dict):
 
 
 def preprocessing(batch_dict):
-    print("preprocessing  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
+    #print("preprocessing  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
 
     voxel_features, voxel_num_points, coords = batch_dict['voxels'], batch_dict['voxel_num_points'], batch_dict['voxel_coords']
 
@@ -229,10 +229,10 @@ def sync_call(batch_dict):
     exec_net_pfe = core.compile_model(model=net_pfe, device_name="GPU")
     exec_net = exec_net_pfe
     res_torch = None  # 在循环前定义一个默认值
-    print("Inference results keys:inputs ", inputs_param)  # 添加这行代码来打印结果中的所有键
+    #print("Inference results keys:inputs ", inputs_param)  # 添加这行代码来打印结果中的所有键
 
     res = exec_net.infer_new_request(inputs=inputs_param)
-    print("Inference results keys:", res.keys())  # 添加这行代码来打印结果中的所有键
+    #print("Inference results keys:", res.keys())  # 添加这行代码来打印结果中的所有键
 
     for k, v in res.items():
         #print(f"Key: {k}, Value shape: {v.shape}")
@@ -249,38 +249,41 @@ def sync_call(batch_dict):
     batch_dict['pillar_features'] = voxel_features
 
     #打印 batch_dict 的键值对
-    print("sync_call  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
+    #print("sync_call  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
     return batch_dict
 
 
+logger = common_utils.create_logger()
+cfg = get_cfg(CFG_FILE)
+args = {
+    "dataset_cfg": cfg.DATA_CONFIG,
+    "class_names": cfg.CLASS_NAMES,
+    "training": False,
+    "root_path": Path(DATA_PATH),
+    "ram": False,
+    "ext": ".bin",
+    "logger": logger
+}
+
+# 实例化 PointPillar
+pointpillar_model = PointPillar(model_cfg=cfg.MODEL, num_class=len(cfg.CLASS_NAMES), dataset = DemoDataset(**args))
+
+# 调用实例方法
+#module_list = pointpillar_model.build_networks()
+#scatterfunc = module_list[1]
+
+
 def scatter(batch_dict):
-    print("scatter  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
-    logger = common_utils.create_logger()
-    cfg = get_cfg(CFG_FILE)
-    args = {
-        "dataset_cfg": cfg.DATA_CONFIG,
-        "class_names": cfg.CLASS_NAMES,
-        "training": False,
-        "root_path": Path(DATA_PATH),
-        "ram": False,
-        "ext": ".bin",
-        "logger": logger
-    }
+    #print("scatter  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
 
-    # 实例化 PointPillar
-    pointpillar_model = PointPillar(model_cfg=cfg.MODEL, num_class=len(cfg.CLASS_NAMES), dataset = DemoDataset(**args))
-
-    # 调用实例方法
-    module_list = pointpillar_model.build_networks()
-
-    scatterfunc = module_list[1]
-    batch_dict = scatterfunc(batch_dict)
+    #batch_dict = scatterfunc(batch_dict)
+    batch_dict = pointpillar_model.scatter(batch_dict)
 
     return batch_dict
 
 
 def rpn_preprocessing(batch_dict):
-    print("rpn_preprocessing  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
+    #print("rpn_preprocessing  :batch_dict ", batch_dict)  # 添加这行代码来打印结果中的所有键
 
     core = ov.Core()
     net_rpn = core.read_model(RPN_MODEL)
@@ -304,6 +307,7 @@ def main():
         "ext": ".bin",
         "logger": logger
     }
+
     datasets = DemoDataset(**args)
     datasets = nncf.Dataset(datasets)
 

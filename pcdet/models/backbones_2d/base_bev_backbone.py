@@ -93,6 +93,7 @@ class BaseBEVBackbone(nn.Module):
         self.request = None
 
         # self.ie = openvino_ie
+        #model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'rpn.xml')
         model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'quantized_rpn.xml')
 
         core = Core()
