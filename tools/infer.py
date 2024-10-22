@@ -21,13 +21,13 @@ from infer.rpn import Rpn
 CONFIG = {
     "pfe_model": {
         "model_path": "pfe.xml",
-        "device_name": "GPU",
+        "device_name": "GPU.1",
     },
     "rpn_model": {
         "model_path": "rpn.xml",
-        "device_name": "GPU",
+        "device_name": "GPU.1",
     },
-    "data_path": "/home/shawn/OpenPCDet/datasets/training/velodyne_reduced",
+    "data_path": "/root/pointpillars/PointPillars-Demo/datasets/training/velodyne_reduced",
     "cfg_file": "pointpillar.yaml",
     "args": {
         "ram": False,
@@ -71,6 +71,16 @@ class Demo:
         self.model.to(device)
         self.model.eval()
         self.start_time = None
+        self.pfe_start_time = None
+        self.pfe_end_time = None
+        self.scatter_start_time = None
+        self.scatter_end_time = None
+        self.rpn_start_time = None
+        self.rpn_end_time = None
+        self.bbox_start_time = None
+        self.bbox_end_time = None
+        self.post_processing_start_time = None
+        self.post_processing_end_time = None
 
     def data_handler(self, index, data):
         data = self.datasets.collate_batch([data])
@@ -128,9 +138,13 @@ class Demo:
 
         return pred_dicts
 
+
+
     def model_pfe_infer(self):
         print("model_pfe_infer running...")
         self.start_time = time.perf_counter()
+        #nonlocal pfe_start_time, pfe_end_time
+        self.pfe_start_time = time.perf_counter()
         # pfe infer
         with torch.no_grad():
             for index, dataset in enumerate(self.datasets):
@@ -139,9 +153,13 @@ class Demo:
                 res = self.pfe.wait_res()
                 self.pfe_res_queue.put(res)
             self.pfe_res_queue.put(None)
+        self.pfe_end_time = time.perf_counter()
+
 
     def model_scatter_infer(self):
         print("model_scatter_infer running...")
+        #nonlocal scatter_start_time, scatter_end_time
+        self.scatter_start_time = time.perf_counter()
         with torch.no_grad():
             while True:
                 item = self.pfe_res_queue.get()
@@ -150,9 +168,12 @@ class Demo:
                     return
                 data = self.model.scatter(item)
                 self.scatter_res_queue.put(data)
+        self.scatter_end_time = time.perf_counter()
 
     def model_rpn_infer(self):
         print("model_rpn_infer running...")
+        #nonlocal rpn_start_time, rpn_end_time
+        self.rpn_start_time = time.perf_counter()
         with torch.no_grad():
             while True:
                 item = self.scatter_res_queue.get()
@@ -163,9 +184,12 @@ class Demo:
                 res = self.rpn.wait_res()
 
                 self.rpn_res_queue.put(res)
+        self.rpn_end_time = time.perf_counter()
 
     def model_bbox_infer(self):
         print("model_bbox_infer running...")
+        #nonlocal bbox_start_time, bbox_end_time
+        self.bbox_start_time = time.perf_counter()
         with torch.no_grad():
             while True:
                 item = self.rpn_res_queue.get()
@@ -174,9 +198,12 @@ class Demo:
                     return
                 data = self.model.bbox(item)
                 self.bbox_res_queue.put(data)
+        self.bbox_end_time = time.perf_counter()
 
     def post_processing_infer(self):
         print("post_processing running...")
+        #nonlocal post_processing_start_time, post_processing_end_time
+        self.post_processing_start_time = time.perf_counter()
         n = 0
         with torch.no_grad():
             while True:
@@ -189,6 +216,7 @@ class Demo:
                 n += 1
                 if n % 50 == 0:
                     print("Processing Index", f"{n}/{len(self.datasets)}")
+        self.post_processing_end_time = time.perf_counter()
 
     def full_infer(self):
         """
@@ -213,7 +241,36 @@ class Demo:
         bbox_thread.join()
         post_processing.join()
 
-        print(len(self.datasets) / (time.perf_counter() - self.start_time))
+        # 计算并打印每个步骤的延迟（确保时间已被记录）
+        if self.pfe_start_time and self.pfe_end_time:
+            print(f"PFE latency: {self.pfe_end_time - self.pfe_start_time:.4f} seconds")
+        else:
+            print("PFE latency: Timing not recorded.")
+
+        if self.scatter_start_time and self.scatter_end_time:
+            print(f"Scatter latency: {self.scatter_end_time - self.scatter_start_time:.4f} seconds")
+        else:
+            print("Scatter latency: Timing not recorded.")
+
+        if self.rpn_start_time and self.rpn_end_time:
+            print(f"RPN latency: {self.rpn_end_time - self.rpn_start_time:.4f} seconds")
+        else:
+            print("RPN latency: Timing not recorded.")
+
+        if self.bbox_start_time and self.bbox_end_time:
+            print(f"BBox latency: {self.bbox_end_time - self.bbox_start_time:.4f} seconds")
+        else:
+            print("BBox latency: Timing not recorded.")
+
+        if self.post_processing_start_time and self.post_processing_end_time:
+            print(f"Post-processing latency: {self.post_processing_end_time - self.post_processing_start_time:.4f} seconds")
+        else:
+            print("Post-processing latency: Timing not recorded.")
+
+    # 计算整体的处理速度
+        # 计算整体的处理速度
+        total_time = time.perf_counter() - self.start_time
+        print(f"Total processing speed: {len(self.datasets) / total_time:.4f} FPS")
 
 
 if __name__ == "__main__":

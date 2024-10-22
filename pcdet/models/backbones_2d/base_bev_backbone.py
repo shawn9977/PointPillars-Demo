@@ -93,12 +93,12 @@ class BaseBEVBackbone(nn.Module):
         self.request = None
 
         # self.ie = openvino_ie
-        #model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'rpn.xml')
-        model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'quantized_rpn.xml')
+        model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'rpn.xml')
+        #model_file_rpn = str(Path(__file__).resolve().parents[3] / 'tools' / 'quantized_rpn.xml')
 
         core = Core()
         self.net_rpn = core.read_model(model=model_file_rpn)
-        self.exec_net_rpn = core.compile_model(model=self.net_rpn, device_name="GPU")
+        self.exec_net_rpn = core.compile_model(model=self.net_rpn, device_name="GPU.1")
 
     def forward_backbone2d(self, data_dict):
         """

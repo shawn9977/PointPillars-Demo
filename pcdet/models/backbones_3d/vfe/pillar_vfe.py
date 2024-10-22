@@ -85,12 +85,12 @@ class PillarVFE(VFETemplate):
         self.y_offset = self.voxel_y / 2 + point_cloud_range[1]
         self.z_offset = self.voxel_z / 2 + point_cloud_range[2]
 
-        #model_file_pfe = str(Path(__file__).resolve().parents[4] / 'tools' / 'pfe.xml')
-        model_file_pfe = str(Path(__file__).resolve().parents[4] / 'tools' / 'quantized_pfe.xml')
+        model_file_pfe = str(Path(__file__).resolve().parents[4] / 'tools' / 'pfe.xml')
+        #model_file_pfe = str(Path(__file__).resolve().parents[4] / 'tools' / 'quantized_pfe.xml')
 
         core = Core()
         self.net_pfe = core.read_model(model=model_file_pfe)
-        self.exec_net_pfe = core.compile_model(model=self.net_pfe, device_name="GPU")
+        self.exec_net_pfe = core.compile_model(model=self.net_pfe, device_name="GPU.1")
 
         self.frame_id = 0
         self.event = threading.Event()

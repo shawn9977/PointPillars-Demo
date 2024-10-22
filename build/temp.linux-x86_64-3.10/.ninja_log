@@ -1,0 +1,4 @@
+# ninja log v5
+0	18020	1729150936391517135	/root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_nms_api.o	aa6a3b5c6d8de364
+0	18119	1729150936491517132	/root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_nms.o	3ae76cb00d98b268
+0	18135	1729150936507517132	/root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_cpu.o	23b1008ab9a1c7ec

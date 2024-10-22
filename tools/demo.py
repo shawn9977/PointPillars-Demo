@@ -80,6 +80,7 @@ def parse_config():
 
     cfg_from_yaml_file(args.cfg_file, cfg)
 
+
     return args, cfg
 
 def run(model, mode, num, demo_dataset, logger, debug_print):
@@ -97,6 +98,8 @@ def run(model, mode, num, demo_dataset, logger, debug_print):
 
     model.eval()
     start_time_2 = time.perf_counter()
+    #print("start_time_2:", start_time_2)
+
     frames = 0
     start_time = []
     end_time = []
@@ -120,6 +123,10 @@ def run(model, mode, num, demo_dataset, logger, debug_print):
 
     total_time = time.perf_counter() - start_time_2
     end_time = model.end_time
+    #print("total_time:", total_time)
+    #print("time.perf_counter():", time.perf_counter())
+    #print("model.end_time:", model.end_time)
+
     latency = np.array(end_time) - np.array(start_time)
     if len(latency) > 20:
         latency = latency[10:-10]  ##remove the first and last 10 elements
@@ -132,6 +139,27 @@ def run(model, mode, num, demo_dataset, logger, debug_print):
         logger.info('total: \t\t%.2f seconds' % (total_time))
     logger.info('FPS: \t\t%.2f' % (frames/total_time))
     logger.info('latency: \t%.2f milliseconds' % (np.mean(latency) * 1000))
+
+
+    #print("model.scatter_latency:", model.scatter_latency)
+
+    if len(model.scatter_latency) > 0:
+        scatter_latency_array = np.array(model.scatter_latency)
+
+        # 如果 scatter_latency 的长度大于 20，去除前 10 和后 10 个数据点
+        if len(scatter_latency_array) > 20:
+            scatter_latency_array = scatter_latency_array[10:-10]
+        # 如果 scatter_latency 的长度大于 4，去除首尾 1 个数据点
+        elif len(scatter_latency_array) > 4:
+            scatter_latency_array = scatter_latency_array[1:-1]
+
+        # 计算平均 scatter latency
+        avg_scatter_latency = np.mean(scatter_latency_array) * 1000  # 将秒转换为毫秒
+
+        # 打印平均 scatter latency
+        logger.info('Scatter latency: \t%.2f milliseconds' % avg_scatter_latency)
+    else:
+        logger.info('No scatter latency recorded.')
 
 def main():
     args, cfg = parse_config()

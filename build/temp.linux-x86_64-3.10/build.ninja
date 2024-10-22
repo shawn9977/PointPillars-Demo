@@ -1,0 +1,26 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -I/root/pointpillars/pp_env/lib/python3.10/site-packages/torch/include -I/root/pointpillars/pp_env/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/root/pointpillars/pp_env/lib/python3.10/site-packages/torch/include/TH -I/root/pointpillars/pp_env/lib/python3.10/site-packages/torch/include/THC -I/root/pointpillars/pp_env/include -I/usr/include/python3.10 -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=iou3d_nms_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++17
+cuda_dlink_post_cflags = 
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+
+
+
+
+build /root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_cpu.o: compile /root/pointpillars/PointPillars-Demo/pcdet/ops/iou3d_nms/src/iou3d_cpu.cpp
+build /root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_nms.o: compile /root/pointpillars/PointPillars-Demo/pcdet/ops/iou3d_nms/src/iou3d_nms.cpp
+build /root/pointpillars/PointPillars-Demo/build/temp.linux-x86_64-3.10/pcdet/ops/iou3d_nms/src/iou3d_nms_api.o: compile /root/pointpillars/PointPillars-Demo/pcdet/ops/iou3d_nms/src/iou3d_nms_api.cpp
+
+
+
+
+
+

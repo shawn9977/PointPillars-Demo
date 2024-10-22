@@ -1,5 +1,7 @@
 from .detector3d_template import Detector3DTemplate
 import time
+import numpy as np
+
 
 class PointPillar(Detector3DTemplate):
     def __init__(self, model_cfg, num_class, dataset):
@@ -10,55 +12,44 @@ class PointPillar(Detector3DTemplate):
         self.scatter = self.module_list[1] #PointPillarScatter
         self.rpn = self.module_list[2] #BaseBEVBackbone
         self.bbox = self.module_list[3] #AnchorHeadSingle
+        self.scatter_latency = []
+
 
     def balance(self, batch_dict):
         if batch_dict is None:              ## None means this is the last inference
-            #print("balance: batch_dict is None, performing postprocessing.")
             batch_dict_pre = self.rpn.postprocessing()
             batch_dict_pre = self.bbox(batch_dict_pre)
             pred_dicts = self.post_processing(batch_dict_pre)
             self.end_time.append(time.perf_counter())
             return pred_dicts
-        #print("balance: initial batch_dict keys:", batch_dict.keys())
         if (batch_dict['frameid'] == 0):
             self.end_time = []
+            self.scatter_latency = []
+            print("clean endtime in balance mode")
             batch_dict = self.pfe.sync_call(batch_dict)
-            #print("balance: batch_dict keys after sync_call:", batch_dict.keys())
-
             batch_dict = self.scatter(batch_dict)
-            #print("balance: batch_dict keys after scatter:", batch_dict.keys())
-
             inputs = self.rpn.preprocessing(batch_dict)
-            #print("balance: inputs keys after rpn.preprocessing:", inputs.keys())
             self.rpn.async_call(batch_dict, inputs)
-            #print("balance: after rpn.async_call")
 
             return None
         inputs = self.pfe.preprocessing(batch_dict)
-        #print("balance: inputs keys after pfe.preprocessing:", inputs.keys())
-    
         self.pfe.async_call(batch_dict, inputs)
-        #print("balance: after pfe.async_call")
-
         batch_dict_pre = self.rpn.postprocessing()
-        #print("balance: batch_dict_pre keys after rpn.postprocessing:", batch_dict_pre.keys())
-
         batch_dict_pre = self.bbox(batch_dict_pre)
-        #print("balance: batch_dict_pre keys after bbox:", batch_dict_pre.keys())
-
         pred_dicts = self.post_processing(batch_dict_pre)
-        #print("balance: batch_dict keys after pfe.postprocessing:", batch_dict.keys())
-
         self.end_time.append(time.perf_counter())
         batch_dict = self.pfe.postprocessing()
+
+        # 记录 scatter 操作的延迟
+        scatter_start_time = time.perf_counter()
         batch_dict = self.scatter(batch_dict)
-        #print("balance: batch_dict keys after second scatter:", batch_dict.keys())
+        scatter_end_time = time.perf_counter()
+        # 计算 scatter latency 并存储
+        scatter_latency = scatter_end_time - scatter_start_time
+        self.scatter_latency.append(scatter_latency)
 
         inputs = self.rpn.preprocessing(batch_dict)
-        #print("balance: inputs keys after second rpn.preprocessing:", inputs.keys())
-
         self.rpn.async_call(batch_dict, inputs)
-        #print("balance: after second rpn.async_call")
 
         return pred_dicts
 
@@ -80,6 +71,7 @@ class PointPillar(Detector3DTemplate):
 
         if (batch_dict['frameid'] == 0):
             self.end_time = []
+            self.scatter_latency = []
             inputs = self.pfe.preprocessing(batch_dict)
             self.pfe.async_call(batch_dict, inputs)
             return None
@@ -98,7 +90,14 @@ class PointPillar(Detector3DTemplate):
         batch_dict_pre = self.pfe.postprocessing()
         self.pfe.async_call(batch_dict, inputs)
 
+        # 记录 scatter 操作的延迟
+        scatter_start_time = time.perf_counter()
         batch_dict_pre = self.scatter(batch_dict_pre)
+        scatter_end_time = time.perf_counter()
+        scatter_latency = scatter_end_time - scatter_start_time
+        self.scatter_latency.append(scatter_latency)
+        # 计算 scatter latency 并存储
+
         inputs = self.rpn.preprocessing(batch_dict_pre)
         batch_dict_pre2 = self.rpn.postprocessing()
         self.rpn.async_call(batch_dict_pre, inputs)
@@ -114,8 +113,17 @@ class PointPillar(Detector3DTemplate):
             return None
         if (batch_dict['frameid'] == 0):
             self.end_time = []
+            self.scatter_latency = []
+            print("clean endtime in latency mode")
         batch_dict = self.pfe.sync_call(batch_dict)
+        # 记录 scatter 操作的延迟
+        scatter_start_time = time.perf_counter()
         batch_dict = self.scatter(batch_dict)
+        scatter_end_time = time.perf_counter()
+        scatter_latency = scatter_end_time - scatter_start_time
+        self.scatter_latency.append(scatter_latency)
+        # 计算 scatter latency 并存储
+
         batch_dict = self.rpn.sync_call(batch_dict)
         batch_dict = self.bbox(batch_dict)
         pred_dicts = self.post_processing(batch_dict)
