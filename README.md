@@ -1,349 +1,182 @@
-# PointPillars  Demo
+# PointPillars OpenVINO™ Demo on Intel GPU
 
-Archive: No
-Date: July 30, 2024
-Status: Not started
+## Introduction
 
-## Notes
+This repository provides five key demonstrations:
 
-<aside>
-<img src="https://www.notion.so/icons/document_gray.svg" alt="https://www.notion.so/icons/document_gray.svg" width="40px" />
+- The implementation is adapted from the [Demo of PointPillars Optimization](https://github.com/intel/OpenVINO-optimization-for-PointPillars), showcasing how to implement and optimize PointPillars on Intel platforms using OpenVINO™. The original code sources are [OpenPCDet](https://github.com/open-mmlab/OpenPCDet), which sets up the PointPillars pipeline demo, and [SmallMunich](https://github.com/SmallMunich/nutonomy_pointpillars), which converts the PointPillars PyTorch model to ONNX format. For more technical details, refer to the [Optimization of PointPillars by using Intel® Distribution of OpenVINO™ Toolkit](https://www.intel.com/content/www/us/en/developer/articles/technical/optimization-of-pointpillars.html).
 
-</aside>
-
-<aside>
-<img src="https://www.notion.so/icons/document_gray.svg" alt="https://www.notion.so/icons/document_gray.svg" width="40px" />
-
-</aside>
+- The repository supports Intel MTL iGPU and Arc770 dGPU platforms.
+- It adds an INT8 quantization method for RPN and PFE models.
+- Scatter latency statistics are included in the demo outputs.
+- Validation has been conducted on Intel MTL iGPU and Arc770 dGPU devices.
 
 ---
 
-## To Do’s
+## Overview
+
+This document provides detailed instructions for setting up and running the PointPillars OpenVINO™ Demo on Intel GPU. The sections below include hardware and software requirements, demo setup steps, and quantization guidance.
+
+### Sections:
+
+1. [Requirements](#requirements)
+   - [Hardware](#hardware)
+   - [Software](#software)
+2. [Demo Setup](#demo-setup)
+   - [Install iGPU or dGPU Drivers](#1-install-igpu-or-dgpu-drivers)
+   - [Install Development and Compilation Tools](#2-install-development-and-compilation-tools)
+   - [Clone the Repository and Create an Environment](#3-clone-the-repository-and-create-an-environment)
+   - [Install Python Packages](#4-install-python-packages)
+   - [Prepare Datasets](#5-prepare-datasets)
+   - [Set Up OpenPCDet Package](#6-set-up-openpcdet-package)
+   - [Run the Demo](#7-run-the-demo)
+3. [Quantization](#quantization)
+   - [Prerequisites](#1-prerequisites)
+   - [Update Dataset Path](#2-update-dataset-path)
+   - [Quantize the Model](#3-quantize-the-model)
 
 ---
 
-- [ ]  
-- [ ]  
-- [ ]  
+## Requirements
+
+### Hardware
+
+Choose one of the following hardware setups:
+- Intel MTL with iGPU
+- Intel Arc770 dGPU + Core CPU
+
+### Software
+
+- Ubuntu 22.04
+- Linux Kernel 6.5.0-18-generic
+- Python 3.10
+- OpenVINO™ 2024.3
 
 ---
 
-在 MTL 上  openvino  为   2024.3.0进行PointPillars Demo 展示
+## Demo Setup
 
-# 环境配置说明
+### 1. Install iGPU or dGPU Drivers
 
-## **硬件：**
+#### 1.1 MTL iGPU Driver Installation
 
- **一台集成iGPU的MTL**
+Refer to the [compute-runtime releases](https://github.com/intel/compute-runtime/releases/tag/24.26.30049.6).
 
-## 软件：
+#### 1.2 Arc770 Driver Installation
 
- 系统信息
+Refer to the [Intel Arc GPU documentation](https://dgpu-docs.intel.com/driver/client/overview.html#installing-client-gpus-on-ubuntu-desktop-22-04-lts).
 
-- **内核版本**: 6.5.0-45-generic
-- **操作系统**: Ubuntu 22.04.4 LTS (Jammy)
-- **CPU**:
-    - **架构**: x86_64
-    - **型号**: Intel(R) Core(TM) Ultra 7 165H
-    - **核心数量**: 16
-    - **线程数量**: 32
-    - **最大频率**: 4900 MHz
-    - **最小频率**: 400 MHz
+---
 
-## 一 安装与配置步骤
+### 2. Install Development and Compilation Tools
 
-### 1.安装iGPU的驱动
-
-安装的Computer runtime 版本是**24.26.30049.6**
-
-参考安装方法：
-https://github.com/intel/compute-runtime/releases/tag/24.26.30049.6
-
-```python
-
-安装结束后 创建个 python的虚拟环境 ， 安装openvino-dev 
-然后查看下 benchmark_app -h 是否有GPU
-
-(test_env) shawn@mtl:~/OpenPCDet/tools$ benchmark_app -h
-[Step 1/11] Parsing and validating input arguments
-[ INFO ] Parsing input parameters
-usage: benchmark_app [-h [HELP]] [-i PATHS_TO_INPUT [PATHS_TO_INPUT ...]] -m PATH_TO_MODEL [-d TARGET_DEVICE]
-                     [-hint {throughput,tput,cumulative_throughput,ctput,latency,none}] [-niter NUMBER_ITERATIONS] [-t TIME]
-                     [-b BATCH_SIZE] [-shape SHAPE] [-data_shape DATA_SHAPE] [-layout LAYOUT] [-extensions EXTENSIONS]
-                     [-c PATH_TO_CLDNN_CONFIG] [-cdir CACHE_DIR] [-lfile [LOAD_FROM_FILE]] [-api {sync,async}]
-                     [-nireq NUMBER_INFER_REQUESTS] [-nstreams NUMBER_STREAMS] [-inference_only [INFERENCE_ONLY]]
-                     [-infer_precision INFER_PRECISION] [-ip {bool,f16,f32,f64,i8,i16,i32,i64,u8,u16,u32,u64}]
-                     [-op {bool,f16,f32,f64,i8,i16,i32,i64,u8,u16,u32,u64}] [-iop INPUT_OUTPUT_PRECISION]
-                     [--mean_values [R,G,B]] [--scale_values [R,G,B]] [-nthreads NUMBER_THREADS]
-                     [-pin {YES,NO,NUMA,HYBRID_AWARE}] [-latency_percentile LATENCY_PERCENTILE]
-                     [-report_type {no_counters,average_counters,detailed_counters}] [-report_folder REPORT_FOLDER]
-                     [-json_stats [JSON_STATS]] [-pc [PERF_COUNTS]] [-pcsort {no_sort,sort,simple_sort}] [-pcseq [PCSEQ]]
-                     [-exec_graph_path EXEC_GRAPH_PATH] [-dump_config DUMP_CONFIG] [-load_config LOAD_CONFIG]
-
-Available target devices:   CPU  GPU
-
-```
-
-### 2. 安装开发工具和编译工具
-
-```python
+```bash
 sudo apt update
 sudo apt-get install python3-dev
 sudo apt install build-essential
 ```
 
-### 3. 创建并激活虚拟环境
+---
+
+### 3. Clone the Repository and Create an Environment
 
 ```bash
-python3 -m venv pcdet
-source <your_folder>/pcdet/bin/activate
-
-/home/shawn/test/test_env
-source /home/shawn/test/test_env/bin/activate
-
+cd /home/shawn
+mkdir project
+git clone https://github.com/shawn9977/PointPillars-Demo.git
+cd PointPillars-Demo
+python3 -m venv env_PointPillars
+source env_PointPillars/bin/activate
 ```
 
-### 4. 安装 OpenVINO
+---
+
+### 4. Install Python Packages
 
 ```bash
 pip install openvino-dev nncf
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-```
-
-### 5. 安装 PyTorch
-
-```bash
-pip install torch torchvision torchaudio --index-url <https://download.pytorch.org/whl/cpu>
-# 或者使用以下命令
-pip install torch torchvision torchaudio
-
-```
-
-### 6. 安装依赖包
-
-```bash
-
-进入项目工程路径下
-cd /home/shawn/OpenPCDet
+cd /home/shawn/project/PointPillars-Demo
 pip install -r requirements.txt
-
 ```
 
-### 7. 数据集准备
+---
 
-请参考 SmallMunich Prepare Dataset  生成数据集。准备好数据集后，设置环境变量：
+### 5. Prepare Datasets
 
-只需要生成后的 training/velodyne_reduced/ 文件夹下的数据集就可以
+Refer to [SmallMunich's repo](https://github.com/SmallMunich/nutonomy_pointpillars) for dataset generation.
+
+**Note:** This step requires an NVIDIA GPU environment. Alternatively, you can skip this step as pre-generated datasets are included in this repository under `PointPillars-Demo/main/datasets/training/velodyne_reduced/`.
+
+Set the dataset path environment variable:
 
 ```bash
 export my_dataset_path=<your_dataset_folder>/training/velodyne_reduced
 
-#for example:
-export my_dataset_path=/home/shawn/OpenPCDet/datasets/training/velodyne_reduced
-
+# Example:
+export my_dataset_path=/home/shawn/project/PointPillars-Demo/datasets/training/velodyne_reduced
 ```
 
-### 8. 运行 [setup.py](http://setup.py/)
+---
+
+### 6. Set Up OpenPCDet Package
 
 ```bash
-
 python setup.py develop
-
 ```
 
-### 9. Demo运行示例
+---
+
+### 7. Run the Demo
 
 ```bash
-cd <your_folder>/tools/
+cd /home/shawn/project/PointPillars-Demo/tools/
 python demo.py --cfg_file pointpillar.yaml --num -1 --data_path $my_dataset_path
 
-#for example 
-cd /home/shawn/OpenPCDet/tools
-python demo.py --cfg_file pointpillar.yaml --num -1 --data_path $my_dataset_path
-
-python demo.py --cfg_file pointpillar.yaml --num 100 --data_path /home/shawn/OpenPCDet/datasets/training/velodyne_reduced
-
+# If `my_dataset_path` is not set, run:
+python demo.py --cfg_file pointpillar.yaml --num 100 --data_path /home/shawn/project/PointPillars-Demo/datasets/training/velodyne_reduced
 ```
 
-结果如图：
-
-![Untitled](PointPillars%20Demo%20becaf0d6c66f46568ba42c7c566d65ab/Untitled.png)
-
-## 二  模型量化
-
-### 1. 准备环境（步骤 1.1-1.8）
-
-按照上面的步骤准备环境。
-
-### 2. 修改量化脚本中的数据集路径
-
-在量化脚本 quant.py中设置数据集路径：
-
-```python
-DATA_PATH=""
-
-#for example
-DATA_PATH="/home/shawn/OpenPCDet/datasets/training/velodyne_reduced"
-
-```
-
-### 3. 执行量化脚本
+Demo outputs include performance metrics:
 
 ```bash
-cd <your_folder>/tools/
-python quant.py
+INFO  -----------------Quick Demo of OpenPCDet-------------------------
+INFO  Loading the dataset and model.
+INFO  Number of samples in dataset: xxx
+INFO  ------Run number of samples: xxx in mode: balance
+INFO  Total: xxx seconds
+INFO  FPS: xxx
+INFO  Latency: xxx milliseconds
+INFO  Scatter latency: xxx milliseconds
 
-#for example 
-cd /home/shawn/OpenPCDet/tools
-python quant.py
-
+INFO  Demo done.
 ```
 
-### 4. 保存量化后的模型
+---
 
-量化后的模型将保存到 tools 目录，命名为 `quantized_pfe.xml`。
+## Quantization
 
-## 三 其他模式测试
+### 1. Prerequisites
 
-### 多线程测试
+Complete steps 1-6 from the demo setup.
 
-在infer.py里修改数据集的路径
+---
 
-```bash
-cd <your_folder>/tools/
-python infer.py
+### 2. Update Dataset Path
 
-#for example 
-cd /home/shawn/OpenPCDet/tools
-python infer.py
-```
-
-配置信息可以在 `infer.py` 中的 `CONFIG` 部分进行修改。
-
-# 参考部分
-
-## NPU 驱动安装，2024.2 可见NPU
+Edit `quant.py` to set the dataset path:
 
 ```python
-
-参考安装文档
-Linux NPU Driver v1.5.0
-https://github.com/intel/linux-npu-driver/releases/tag/v1.5.0
-
-(pcdet_env) shawn@MTL:~$ benchmark_app -h
-[Step 1/11] Parsing and validating input arguments
-[ INFO ] Parsing input parameters
-usage: benchmark_app [-h [HELP]] [-i PATHS_TO_INPUT [PATHS_TO_INPUT ...]] -m PATH_TO_MODEL [-d TARGET_DEVICE] [-hint {throughput,tput,cumulative_throughput,ctput,latency,none}]
-                     [-niter NUMBER_ITERATIONS] [-t TIME] [-b BATCH_SIZE] [-shape SHAPE] [-data_shape DATA_SHAPE] [-layout LAYOUT] [-extensions EXTENSIONS] [-c PATH_TO_CLDNN_CONFIG] [-cdir CACHE_DIR]
-                     [-lfile [LOAD_FROM_FILE]] [-api {sync,async}] [-nireq NUMBER_INFER_REQUESTS] [-nstreams NUMBER_STREAMS] [-inference_only [INFERENCE_ONLY]] [-infer_precision INFER_PRECISION]
-                     [-ip {bool,f16,f32,f64,i8,i16,i32,i64,u8,u16,u32,u64}] [-op {bool,f16,f32,f64,i8,i16,i32,i64,u8,u16,u32,u64}] [-iop INPUT_OUTPUT_PRECISION] [--mean_values [R,G,B]]
-                     [--scale_values [R,G,B]] [-nthreads NUMBER_THREADS] [-pin {YES,NO,NUMA,HYBRID_AWARE}] [-latency_percentile LATENCY_PERCENTILE]
-                     [-report_type {no_counters,average_counters,detailed_counters}] [-report_folder REPORT_FOLDER] [-json_stats [JSON_STATS]] [-pc [PERF_COUNTS]] [-pcsort {no_sort,sort,simple_sort}]
-                     [-pcseq [PCSEQ]] [-exec_graph_path EXEC_GRAPH_PATH] [-dump_config DUMP_CONFIG] [-load_config LOAD_CONFIG]
-
-Available target devices:   CPU  NPU
-(pcdet_env) shawn@MTL:~$
-
+DATA_PATH = "/home/shawn/project/PointPillars-Demo/datasets/training/velodyne_reduced"
 ```
 
-## Python 环境
+---
 
-- **Python 版本**: 3.10.12
-- **虚拟环境**: test_env
-- **已安装的 Python 包**
+### 3. Quantize the Model
 
-```
-about-time                4.2.1
-alive-progress            3.1.5
-attrs                     23.2.0
-autograd                  1.6.2
-certifi                   2024.7.4
-charset-normalizer        3.3.2
-cma                       3.2.2
-contourpy                 1.2.1
-cycler                    0.12.1
-defusedxml                0.7.1
-Deprecated                1.2.14
-dill                      0.3.8
-easydict                  1.13
-filelock                  3.15.4
-fonttools                 4.53.1
-fsspec                    2024.6.1
-future                    1.0.0
-grapheme                  0.6.0
-idna                      3.7
-imageio                   2.34.2
-Jinja2                    3.1.4
-joblib                    1.4.2
-jsonschema                4.23.0
-jsonschema-specifications 2023.12.1
-jstyleson                 0.0.2
-kiwisolver                1.4.5
-lazy_loader               0.4
-llvmlite                  0.43.0
-markdown-it-py            3.0.0
-MarkupSafe                2.1.5
-matplotlib                3.9.1
-mdurl                     0.1.2
-mpmath                    1.3.0
-natsort                   8.4.0
-networkx                  3.1
-ninja                     1.11.1.1
-nncf                      2.12.0
-numba                     0.60.0
-numpy                     1.26.4
-nvidia-cublas-cu12        12.1.3.1
-nvidia-cuda-cupti-cu12    12.1.105
-nvidia-cuda-nvrtc-cu12    12.1.105
-nvidia-cuda-runtime-cu12  12.1.105
-nvidia-cudnn-cu12         9.1.0.70
-nvidia-cufft-cu12         11.0.2.54
-nvidia-curand-cu12        10.3.2.106
-nvidia-cusolver-cu12      11.4.5.107
-nvidia-cusparse-cu12      12.1.0.106
-nvidia-nccl-cu12          2.20.5
-nvidia-nvjitlink-cu12     12.5.82
-nvidia-nvtx-cu12          12.1.105
-opencv-python             4.10.0.84
-openvino                  2024.3.0
-openvino-dev              2024.3.0
-openvino-telemetry        2024.1.0
-packaging                 24.1
-pandas                    2.2.2
-pcdet                     0.3.0+6e282ba /home/shawn/OpenPCDet
-pillow                    10.4.0
-pip                       22.0.2
-protobuf                  5.27.3
-psutil                    6.0.0
-pydot                     2.0.0
-Pygments                  2.18.0
-pymoo                     0.6.1.3
-pyparsing                 3.1.2
-python-dateutil           2.9.0.post0
-pytz                      2024.1
-PyYAML                    6.0.1
-referencing               0.35.1
-requests                  2.32.3
-rich                      13.7.1
-rpds-py                   0.19.1
-scikit-image              0.22.0
-scikit-learn              1.5.1
-scipy                     1.13.1
-setuptools                59.6.0
-six                       1.16.0
-sympy                     1.13.1
-tabulate                  0.9.0
-tensorboardX              2.6.2.2
-threadpoolctl             3.5.0
-tifffile                  2024.7.24
-torch                     2.4.0
-torchaudio                2.4.0
-torchvision               0.19.0
-tqdm                      4.66.4
-triton                    3.0.0
-typing_extensions         4.12.2
-tzdata                    2024.1
-urllib3                   2.2.2
-wrapt                     1.16.0
+Run `quant.py` to save the quantized model (`quantized_pfe.xml`) in the `tools` directory:
 
-```
+```bash
+cd /home/shawn/project/PointPillars-Demo/tools/
+python quant.py
